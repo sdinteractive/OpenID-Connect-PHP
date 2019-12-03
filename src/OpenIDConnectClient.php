@@ -251,6 +251,14 @@ class OpenIDConnectClient
     }
 
     /**
+     * @param $provider_policy
+     */
+    public function setProviderPolicy($provider_policy)
+    {
+        $this->providerConfig['providerPolicy'] = $provider_policy;
+    }
+
+    /**
      * @param $issuer
      */
     public function setIssuer($issuer) {
@@ -500,6 +508,10 @@ class OpenIDConnectClient
         // This is also known as auto "discovery"
         if(!$this->wellKnown) {
             $well_known_config_url = rtrim($this->getProviderURL(), '/') . '/.well-known/openid-configuration';
+            $policy = $this->getProviderPolicy();
+            if ($policy) {
+                $well_known_config_url .= '?' . http_build_query($policy, null, '&');
+            }
             $this->wellKnown = json_decode($this->fetchURL($well_known_config_url));
         }
 
@@ -1181,6 +1193,17 @@ class OpenIDConnectClient
         }
 
         return $this->providerConfig['providerUrl'];
+    }
+
+    /**
+     * @return string?
+     */
+    public function getProviderPolicy()  {
+        if (!isset($this->providerConfig['providerPolicy'])) {
+            return null;
+        } else {
+            return $this->providerConfig['providerPolicy'];
+        }
     }
 
     /**
